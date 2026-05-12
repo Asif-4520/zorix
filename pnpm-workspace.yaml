@@ -1,0 +1,4 @@
+allowBuilds:
+  esbuild: false
+overrides:
+  '@asif_4520/zorix': 'link:'

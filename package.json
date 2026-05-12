@@ -1,0 +1,90 @@
+{
+  "name": "@zorix/zorixdb",
+  "version": "1.0.0-beta.0",
+  "packageManager": "pnpm@11.0.6",
+  "description": "Schema-driven IndexedDB wrapper with type-safe query API",
+  "type": "module",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "pnpm typecheck && pnpm test:unit && pnpm test:e2e",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:e2e": "vitest run --config vitest.browser.config.ts",
+    "test:full": "pnpm typecheck && pnpm test:unit && pnpm test:e2e",
+    "publish:beta": "pnpm build && pnpm publish --tag beta --access public",
+    "publish:latest": "pnpm build && pnpm publish --access public",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "main": "./dist/zorix.cjs",
+  "module": "./dist/zorix.esm.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/zorix.esm.js",
+      "require": "./dist/zorix.cjs",
+      "default": "./dist/zorix.iife.js"
+    }
+  },
+  "unpkg": "./dist/zorix.iife.js",
+  "jsdelivr": "./dist/zorix.iife.js",
+  "browser": "./dist/zorix.iife.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "author": "Asif-4520",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Asif-4520/zorix"
+  },
+  "homepage": "https://asif-4520.github.io/zorix/",
+  "bugs": {
+    "url": "https://github.com/Asif-4520/zorix/issues"
+  },
+  "keywords": [
+    "indexeddb",
+    "orm",
+    "database",
+    "browser",
+    "zorix",
+    "typescript",
+    "schema"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "^25.6.0",
+    "@vitest/browser-playwright": "^4.1.4",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "playwright": "^1.36.0",
+    "prettier": "^3.5.2",
+    "rollup": "^4.24.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "serve": "^14.2.6",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.25.0",
+    "vite": "^6.4.2",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.4"
+  }
+}

@@ -1,0 +1,35 @@
+# Source files
+src/
+tests/
+
+# Configuration files
+rollup.config.js
+rollup.browser.config.js
+tsconfig.json
+jsconfig.json
+vitest.config.ts
+vitest.browser.config.ts
+.gitignore
+.npmignore
+
+# Documentation source
+docs/
+.github/
+
+# Development artifacts
+node_modules/
+bun.lock
+package-lock.json
+pnpm-lock.yaml
+*.log
+
+# Design assets
+assets/
+zorix_banner.png
+
+# Miscellaneous
+docs_overhaul_plan.md
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+CODE_OF_CONDUCT.md
