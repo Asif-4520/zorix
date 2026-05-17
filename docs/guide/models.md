@@ -7,7 +7,7 @@ Models are the primary way to interact with data in Zorix. Each model correspond
 You create a model instance using the `db.model()` method. This method is asynchronous because it ensures the object store and its indexes are properly set up before you start using it.
 
 ```typescript
-import { schema, string, number } from 'zorixdb';
+import { schema, string, number } from '@zorix/zorixdb';
 
 const userSchema = schema({
   id: number().primary(),
@@ -20,9 +20,11 @@ const Users = await db.model('users', userSchema);
 ## Model Properties
 
 ### `name`
+
 The name of the object store.
 
 ### `schema`
+
 The schema definition associated with the model.
 
 ## Core Operations

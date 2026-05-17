@@ -28,7 +28,7 @@ hero:
   <div class=" code-box">
   
 ```typescript
-import { DB, schema, string, number } from 'zorixdb';
+import { DB, schema, string, number } from '@zorix/zorixdb';
 const db = new DB('mydb', {
   version: 1,
 });

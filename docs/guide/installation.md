@@ -2,12 +2,12 @@
 
 Zorix is a lightweight, zero-dependency library designed for modern web environments. Whether you are using a state-of-the-art build pipeline or a simple vanilla HTML file, Zorix fits seamlessly into your workflow.
 
-
 ## 📦 Installation
 
 Install Zorix via your preferred package manager to enjoy full TypeScript support and optimized bundling.
 
 ::: code-group
+
 ```bash [npm]
 npm install @zorix/zorixdb
 ```
@@ -23,17 +23,18 @@ pnpm add @zorix/zorixdb
 ```bash [bun]
 bun add @zorix/zorixdb
 ```
-:::
 
+:::
 
 ## 🌐 CDN Usage
 
 For rapid prototyping or vanilla projects, you can load Zorix directly via CDN.
 
 ### ES Modules (Recommended)
+
 ```html
 <script type="module">
-  import { DB, schema, string } from 'https://unpkg.com/zorixdb@latest/dist/zorix.esm.js';
+  import { DB, schema, string } from 'https://unpkg.com/@zorix/zorixdb@latest/dist/zorix.esm.js';
 
   const db = new DB('demo-db');
   // ...
@@ -41,8 +42,9 @@ For rapid prototyping or vanilla projects, you can load Zorix directly via CDN.
 ```
 
 ### Global Variable (IIFE)
+
 ```html
-<script src="https://unpkg.com/zorixdb@latest/dist/zorix.iife.js"></script>
+<script src="https://unpkg.com/@zorix/zorixdb@latest/dist/zorix.iife.js"></script>
 <script>
   const { DB, schema, string } = window.zorix;
   // ...
@@ -52,8 +54,6 @@ For rapid prototyping or vanilla projects, you can load Zorix directly via CDN.
 ::: tip 📌 Version Locking
 For production use via CDN, always lock to a specific version (e.g., `@1.0.5`) instead of `@latest` to avoid unexpected breaking changes during library updates.
 :::
-
-
 
 ## ⚙️ Environment Requirements
 
@@ -72,8 +72,8 @@ useEffect(() => {
   // ...
 }, []);
 ```
-:::
 
+:::
 
 ## 💾 Storage Limits & Quotas
 
@@ -95,8 +95,8 @@ try {
   }
 }
 ```
-:::
 
+:::
 
 ## 🛡️ TypeScript Configuration
 
@@ -113,7 +113,6 @@ Zorix leverages advanced TypeScript inference. For the best experience (and accu
   }
 }
 ```
-
 
 ## 🚀 Next Steps
 

@@ -7,15 +7,15 @@ The `DB` class is the entry point for Zorix. It manages the connection to your I
 To start, create a new instance of the `DB` class.
 
 ```typescript
-import { DB } from 'zorixdb';
+import { DB } from '@zorix/zorixdb';
 
 const db = new DB('my-database', { version: 1 });
 ```
 
 ### Configuration Options
 
-| Option | Type | Description |
-| :--- | :--- | :--- |
+| Option    | Type     | Description                                                 |
+| :-------- | :------- | :---------------------------------------------------------- |
 | `version` | `number` | The database version. Increment this to trigger migrations. |
 
 ## Managing Connections

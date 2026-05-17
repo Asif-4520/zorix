@@ -1,20 +1,28 @@
 import { defineConfig } from 'vitepress';
 
+const basePath = '/zorix/';
+
 export default defineConfig({
   title: 'Zorix',
   description: 'Modern IndexedDB toolkit for structured local databases',
 
-  base: '/zorix/',
+  base: basePath,
+  head: [
+    ['link', { rel: 'icon', href: basePath + 'asset/zorix.png', type: 'image/png' }],
+    ['link', { rel: 'shortcut icon', href: basePath + 'asset/zorix.png' }],
+    ['link', { rel: 'apple-touch-icon', href: basePath + 'asset/zorix.png' }],
+    ['meta', { name: 'theme-color', content: '#ffffff' }],
+  ],
 
   themeConfig: {
-    logo: '/asset/zorix.png',
+    logo: basePath + 'asset/zorix.png',
 
     nav: [
       { text: 'Guide', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: 'Changelog', link: '/changelog' },
       {
         text: 'NPM',
-        link: 'https://www.npmjs.com/package/zorixdb',
+        link: 'https://www.npmjs.com/package/@zorix/zorixdb',
       },
     ],
 
