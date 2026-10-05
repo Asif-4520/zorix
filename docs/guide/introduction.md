@@ -1,29 +1,24 @@
 # Introduction
 
-Zorix is a modern, type-safe IndexedDB toolkit designed for building robust local databases in the browser. It provides an ORM-like experience, abstracting away the complexities of raw IndexedDB while maintaining high performance.
+Zorix is a lightweight, type-safe IndexedDB library for modern web applications. It makes working with local browser databases easy, fast, and straightforward.
 
 ## Why Zorix?
 
-IndexedDB is powerful but notoriously difficult to work with due to its low-level, event-driven API. Zorix bridges this gap by offering:
+Raw IndexedDB is very powerful, but writing raw IndexedDB code with complex event handlers and callbacks can quickly get confusing. Zorix makes things simple by giving you:
 
-- **Type Safety**: Built with TypeScript from the ground up, providing perfect autocompletion.
-- **Schema-Driven**: Define your data structure once and get automated validation.
-- **Promise-Based**: No more callback hell; use `async/await` for all operations.
-- **Query Engine**: Powerful filtering, sorting, and pagination out of the box.
-- **Migrations**: Easy versioning and schema evolution.
+- **TypeScript-First**: Full auto-completion and type checking while writing your schemas and queries.
+- **Super Fast Performance**: Inserts thousands of records quickly in a single transaction and fetches data using native browser speed.
+- **Simple Schemas**: Define your table structure once, and Zorix automatically handles validation for you.
+- **Easy Event Listeners**: Listen for data inserts, updates, and deletes to keep your UI updated automatically.
+- **Always Fresh Data**: Reads fresh data directly from IndexedDB every time, so you never have to worry about stale cache issues.
 
-## Core Philosophy
+## Simple Comparison
 
-Zorix is built on the principle that client-side data deserves the same level of architectural rigor as server-side data. Whether you're building an offline-first app, a sophisticated state management system, or just need to cache API responses, Zorix provides the tools to do it right.
+| Feature | Raw IndexedDB | Standard Libraries | Zorix DB |
+| :--- | :--- | :--- | :--- |
+| **API Style** | Complex Callbacks | Basic Promises | Clean Async/Await & Simple Events |
+| **Schema & Types** | Manual Checking | Partial Types | Full TypeScript Auto-Completion |
+| **Bulk Saving** | Slow / Manual | Sequential Promises | Super Fast Single Transaction |
+| **Data Fetching** | Item-by-item Cursors | Cursor Loops | Direct Native Browser Speed |
 
-## Comparison
-
-| Feature | Raw IndexedDB | Zorix |
-| :--- | :--- | :--- |
-| **API Style** | Event-based / Callbacks | Promise-based / Async-Await |
-| **Schema** | Implicit / Manual | Explicit / Declarative |
-| **Validation** | None | Automatic |
-| **TypeScript** | Basic | Deeply Integrated |
-| **Transactions** | Manual Management | Automated & Scoped |
-
-Next, let's get you set up with [Installation](./installation.md).
+Next, check out [Installation](./installation.md).

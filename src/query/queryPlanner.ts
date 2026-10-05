@@ -361,7 +361,9 @@ function determineDirectionAndSorting(
   return { direction, needsSorting };
 }
 
-// ── Main Entry Point ────────────────────────────────────────────────
+// ── Static Plan Cache ─────────────────────────────────────────────
+
+const planCache = new WeakMap<SchemaResult, Map<string, ExecutionPlan>>();
 
 /** Analyzes a query against a schema and produces an optimal execution plan. */
 export function planQuery<T>(schema: SchemaResult, query: Query<T>): ExecutionPlan {

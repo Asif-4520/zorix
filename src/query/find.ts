@@ -106,6 +106,23 @@ export class Find<F> {
   async find(query: Query<F>): Promise<F[]> {
     return new Promise((resolve, reject) => {
       const plan = this.createPlan(query);
+
+      // Fast Path: Direct getAll() if no post-filtering, no custom sorting, no offset, and forward direction
+      if (
+        !plan.needsSorting &&
+        Object.keys(plan.postFilter).length === 0 &&
+        !query.offset &&
+        plan.direction === 'next'
+      ) {
+        const getAllReq = plan.bestIndex
+          ? this.store.index(plan.bestIndex as string).getAll(plan.range ?? undefined, query.limit)
+          : this.store.getAll(plan.range ?? undefined, query.limit);
+
+        getAllReq.onsuccess = () => resolve(getAllReq.result as F[]);
+        getAllReq.onerror = () => reject(getAllReq.error);
+        return;
+      }
+
       let request: IDBRequest<IDBCursorWithValue | null>;
 
       if (plan.bestIndex) {
@@ -116,26 +133,28 @@ export class Find<F> {
       }
 
       const normalizedWhere = normalizeWhere(query.where as Record<string, unknown>);
-
       const orderBy = query.orderBy as OrderByClause<F> | undefined;
 
       const result: BTree<F> | Array<F> =
         plan.needsSorting && orderBy ? new BTree<F>(orderBy.field as unknown as keyof F) : [];
 
-      let skipped = 0;
+      let hasAdvanced = false;
 
       request.onsuccess = event => {
-        const cursor = (event.target as IDBRequest).result;
+        const cursor = (event.target as IDBRequest).result as IDBCursorWithValue | null;
 
         if (cursor) {
+          // Native advance for pagination offset
+          if (query.offset && !hasAdvanced && query.offset > 0) {
+            hasAdvanced = true;
+            cursor.advance(query.offset);
+            return;
+          }
+
           const value = cursor.value as F;
 
           if (this.matchesNormalized(value, normalizedWhere)) {
-            if (query.offset && skipped < query.offset) {
-              skipped++;
-            } else {
-              result.push(value);
-            }
+            result.push(value);
 
             if (query.limit) {
               const size = result.length;

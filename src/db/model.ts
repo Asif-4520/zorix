@@ -2,10 +2,11 @@ import { Find } from '../query/find';
 import { planQuery } from '../query/queryPlanner';
 import { mapIdbError, errorFactory } from '../error/errorFactory';
 import { ZorixError } from '../error/zorixError';
+import { Emitter } from '../utils/emitter';
 import type { SchemaResult, Query, InsertManyResult, UpdateResult, DeleteResult } from '../types';
 
-/** Represents a single IndexedDB object store with typed CRUD operations. */
-export class Model<T extends Record<string, unknown>> {
+/** Represents a single IndexedDB object store with typed CRUD operations and event lifecycle. */
+export class Model<T extends Record<string, unknown>> extends Emitter {
   protected readonly storeName: string;
   protected readonly getDb: () => Promise<IDBDatabase>;
   /** Frozen schema reference — only this model's schema, not the full registry. */
@@ -16,6 +17,7 @@ export class Model<T extends Record<string, unknown>> {
     getDb: () => Promise<IDBDatabase>,
     schema: Readonly<SchemaResult>
   ) {
+    super();
     this.storeName = storeName;
     this.getDb = getDb;
     this.schema = schema;
@@ -65,7 +67,10 @@ export class Model<T extends Record<string, unknown>> {
   public async insert(data: T): Promise<IDBValidKey> {
     await this.validateData(data);
     const store = await this.openStore('readwrite');
-    return this.promisify(store.add(data));
+    const key = await this.promisify(store.add(data));
+    this.emit('insert', { storeName: this.storeName, key, data });
+    this.emit('change', { storeName: this.storeName, action: 'insert', records: [data] });
+    return key;
   }
 
   /** Inserts multiple records in a single transaction. */
@@ -78,21 +83,29 @@ export class Model<T extends Record<string, unknown>> {
       });
     }
 
-    // Validate ALL items before opening the transaction.
-    // IDB transactions auto-commit when idle — interleaving async validation
-    // calls with store.add() via Promise.all causes TransactionInactiveError.
-    for (const item of data) {
-      await this.validateData(item);
+    // Validate ALL items before opening the transaction for 100% runtime type-safety.
+    for (let i = 0; i < data.length; i++) {
+      await this.validateData(data[i]);
     }
 
-    const store = await this.openStore('readwrite');
+    const db = await this.getDb();
+    return new Promise<InsertManyResult>((resolve, reject) => {
+      const tx = db.transaction(this.storeName, 'readwrite');
+      const store = tx.objectStore(this.storeName);
 
-    // Add records sequentially within the same transaction (no async gaps).
-    for (const item of data) {
-      await this.promisify(store.add(item));
-    }
+      tx.oncomplete = () => {
+        const res = { insertedCount: data.length };
+        this.emit('insert', { storeName: this.storeName, count: data.length, records: data });
+        this.emit('change', { storeName: this.storeName, action: 'insert', records: data });
+        resolve(res);
+      };
+      tx.onerror = () => reject(mapIdbError(tx.error));
+      tx.onabort = () => reject(mapIdbError(tx.error));
 
-    return { insertedCount: data.length };
+      for (let i = 0; i < data.length; i++) {
+        store.add(data[i]);
+      }
+    });
   }
 
   /** Finds records matching the query. */
@@ -136,7 +149,10 @@ export class Model<T extends Record<string, unknown>> {
         const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
 
         if (!cursor) {
-          return resolve({ updatedCount });
+          const res = { updatedCount };
+          this.emit('update', { storeName: this.storeName, query, data, updatedCount });
+          this.emit('change', { storeName: this.storeName, action: 'update', query, data, updatedCount });
+          return resolve(res);
         }
 
         try {
@@ -174,7 +190,10 @@ export class Model<T extends Record<string, unknown>> {
         updateReq.onsuccess = () => {
           updatedCount++;
           if (query.limit && updatedCount >= query.limit) {
-            return resolve({ updatedCount });
+            const res = { updatedCount };
+            this.emit('update', { storeName: this.storeName, query, data, updatedCount });
+            this.emit('change', { storeName: this.storeName, action: 'update', query, data, updatedCount });
+            return resolve(res);
           }
           cursor.continue();
         };
@@ -203,7 +222,10 @@ export class Model<T extends Record<string, unknown>> {
         const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
 
         if (!cursor) {
-          return resolve({ deletedCount });
+          const res = { deletedCount };
+          this.emit('delete', { storeName: this.storeName, query, deletedCount });
+          this.emit('change', { storeName: this.storeName, action: 'delete', query, deletedCount });
+          return resolve(res);
         }
 
         try {
@@ -226,7 +248,10 @@ export class Model<T extends Record<string, unknown>> {
         deleteReq.onsuccess = () => {
           deletedCount++;
           if (query.limit && deletedCount >= query.limit) {
-            return resolve({ deletedCount });
+            const res = { deletedCount };
+            this.emit('delete', { storeName: this.storeName, query, deletedCount });
+            this.emit('change', { storeName: this.storeName, action: 'delete', query, deletedCount });
+            return resolve(res);
           }
           cursor.continue();
         };
@@ -246,6 +271,9 @@ export class Model<T extends Record<string, unknown>> {
   /** Clears all records from the store. */
   public async clear(): Promise<undefined> {
     const store = await this.openStore('readwrite');
-    return this.promisify(store.clear());
+    const res = await this.promisify(store.clear());
+    this.emit('clear', { storeName: this.storeName });
+    this.emit('change', { storeName: this.storeName, action: 'clear' });
+    return res;
   }
 }

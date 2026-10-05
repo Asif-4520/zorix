@@ -81,16 +81,21 @@ export class DB extends Emitter {
 
       request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
         this.emit('versionchange', null);
+        this.emit('upgrade', { oldVersion: event.oldVersion, newVersion: event.newVersion });
         this.handleUpgrade(event, request);
       };
 
       request.onsuccess = event => {
         this.connection = (event.target as IDBOpenDBRequest).result;
+        this.emit('open', this.connection);
+        this.emit('connect', this.connection);
         resolve(this.connection);
       };
 
       request.onerror = event => {
-        reject((event.target as IDBOpenDBRequest).error);
+        const err = (event.target as IDBOpenDBRequest).error;
+        this.emit('error', err);
+        reject(err);
       };
 
       request.onblocked = event => {
@@ -204,8 +209,14 @@ export class DB extends Emitter {
     // Store frozen schema reference — schema() already returns Object.freeze'd
     this.schemas.set(storeName, schema);
 
-    // Pass only the single schema ref, not the entire map
-    return new Model<SchemaData<S['fields']>>(storeName, () => this.getDatabase(), schema);
+    const modelInstance = new Model<SchemaData<S['fields']>>(storeName, () => this.getDatabase(), schema);
+    modelInstance.on('change', payload => this.emit('change', payload));
+    modelInstance.on('insert', payload => this.emit('insert', payload));
+    modelInstance.on('update', payload => this.emit('update', payload));
+    modelInstance.on('delete', payload => this.emit('delete', payload));
+    modelInstance.on('clear', payload => this.emit('clear', payload));
+
+    return modelInstance;
   }
 
   /** Creates a raw IndexedDB transaction. */
@@ -242,6 +253,7 @@ export class DB extends Emitter {
     if (this.connection) {
       this.connection.close();
       this.connection = null;
+      this.emit('close', null);
     }
   }
 

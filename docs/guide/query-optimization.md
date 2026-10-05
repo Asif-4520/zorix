@@ -13,20 +13,6 @@ When you call `find()`, `update()`, or `delete()`, Zorix performs the following 
 5. **Post-Filtering**: Any conditions that couldn't be satisfied by the index are filtered in memory.
 
 
-## Operator Selectivity
-
-Different operators have different performance characteristics. Zorix scores them accordingly:
-
-| Operator | Score | Performance |
-| :--- | :--- | :--- |
-| `eq` | **100** | Maximum (Direct Lookup) |
-| `between` | **70** | High (Bounded Range) |
-| `gt`, `gte`, `lt`, `lte` | **60** | High (One-sided Range) |
-| `startsWith` | **50** | Medium (Prefix Match) |
-| `includes` | **40** | Medium (Multi-entry Scan) |
-| `neq` | **10** | Low (Full Scan Required) |
-
-
 ## Index Selection Strategy
 
 ### Primary Key

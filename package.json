@@ -1,6 +1,6 @@
 {
   "name": "@zorix/zorixdb",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0",
   "packageManager": "pnpm@11.0.6",
   "description": "Schema-driven IndexedDB wrapper with type-safe query API",
   "type": "module",

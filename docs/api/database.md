@@ -97,19 +97,46 @@ Schema validation is bypassed when using `db.tx()`. Always manually sanitize you
 :::
 
 
-## Lifecycle Events
+## Lifecycle Events API
 
-The `DB` class extends a standard event emitter, allowing you to listen for core database events.
+Both `DB` and `Model` extend `Emitter`, providing complete event lifecycle monitoring:
 
-### The `blocked` Event
-Triggered when a schema upgrade is blocked by active connections in other browser tabs.
+### Event Listener Methods
+
+- `db.on(event, handler)` / `model.on(event, handler)`: Register a persistent event listener.
+- `db.once(event, handler)` / `model.once(event, handler)`: Register a one-time event listener that auto-detaches after firing once.
+- `db.off(event, handler)` / `model.off(event, handler)`: Unbind a registered event listener.
+- `db.removeAllListeners(event?)`: Clear listeners for a specific event or all events.
+
+### Database Connection Events (`DB`)
+
+| Event | Payload | Description |
+| :--- | :--- | :--- |
+| `'open'` / `'connect'` | `IDBDatabase` | Fired when the IndexedDB connection opens successfully. |
+| `'close'` | `null` | Fired when `db.close()` is called. |
+| `'error'` | `DOMException` | Fired on unhandled database errors. |
+| `'upgrade'` | `{ oldVersion, newVersion }` | Fired during schema upgrade (`onupgradeneeded`). |
+| `'blocked'` | `IDBVersionChangeEvent` | Fired when database upgrade is blocked by another open tab. |
+| `'versionchange'` | `null` | Fired when another tab requests a version change. |
+
+### Model Mutation & Reactive Change Events (`Model` & `DB`)
+
+| Event | Payload | Description |
+| :--- | :--- | :--- |
+| `'insert'` | `{ storeName, records }` | Fired when records are inserted into a model. |
+| `'update'` | `{ storeName, query, data, updatedCount }` | Fired when records are updated. |
+| `'delete'` | `{ storeName, query, deletedCount }` | Fired when records are deleted. |
+| `'clear'` | `{ storeName }` | Fired when an object store is cleared. |
+| `'change'` | `{ storeName, action, ... }` | Fired on **ANY** store mutation for reactive UI updates. |
 
 ```typescript
+// Subscribe to reactive database changes
+db.on('change', (event) => {
+  console.log(`Store "${event.storeName}" changed via "${event.action}"`);
+});
+
+// Subscribe to database connection blockages
 db.on('blocked', () => {
-  console.warn('Upgrade blocked! Notify user to close other tabs.');
+  console.warn('Upgrade blocked! Please close other open tabs.');
 });
 ```
-
-::: tip Production Readiness
-Always handle the `blocked` event in production apps. Without it, your application will stall during upgrades if the user has multiple tabs open.
-:::
